@@ -8,5 +8,5 @@ The goal is to download, unpack and release the included jar files to a configur
 
 Use like this:
 =============
-mvn clean package
+mvn clean package<br>
 java -jar target/swt-release-fetcher-<version>-jar-with-dependencies.jar
