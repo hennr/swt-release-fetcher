@@ -1,3 +1,18 @@
+/*
+ * Copyright 2012 Uri Shaked
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.github.swt_release_fetcher;
 
 import java.io.File;
@@ -30,14 +45,28 @@ import org.codehaus.plexus.DefaultContainerConfiguration;
 import org.codehaus.plexus.DefaultPlexusContainer;
 import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
+import org.codehaus.plexus.logging.Logger;
 
+/**
+ * Handles the downloading, verification and maven deployment of a single
+ * artifact.
+ * 
+ * @author Uri Shaked
+ */
 public class Artifact {
+	private final static String REPOSITORY_URL = "svn:https://swt-repo.googlecode.com/svn/repo";
+
 	private final File file;
+	private final String artifactVersion;
+	private final String artifactId;
+
 	private boolean newDownload;
 
-	public Artifact(File file) {
+	public Artifact(File file, String artifactVersion, String artifactId) {
 		super();
 		this.file = file;
+		this.artifactVersion = artifactVersion;
+		this.artifactId = artifactId;
 	}
 
 	private boolean validateFileMd5(File file, String expected) throws IOException {
@@ -78,9 +107,9 @@ public class Artifact {
 		Velocity.init();
 		VelocityContext context = new VelocityContext();
 
-		// TODO fill those correctly
-		context.put("version", "3.7.2");
-		context.put("artifactId", "foo.bar");
+		context.put("repositoryUrl", REPOSITORY_URL);
+		context.put("version", artifactVersion);
+		context.put("artifactId", artifactId);
 
 		Writer writer = new FileWriter(pomFile);
 		try {
@@ -124,6 +153,7 @@ public class Artifact {
 		try {
 			container = new DefaultPlexusContainer(cc);
 			PrintStreamLogger logger = new PrintStreamLogger(System.out);
+			logger.setThreshold(Logger.LEVEL_DEBUG);
 			container.setLoggerManager(new MavenLoggerManager(logger));
 			return container.lookup(Maven.class);
 		} catch (PlexusContainerException e) {
@@ -136,15 +166,12 @@ public class Artifact {
 	}
 
 	public void runMavenDeploy(File pomFile, File jarFile, File sourcesFile) {
-		// TODO
-		// mvn deploy:deploy-file -f %1.pom -DpomFile=%1.pom -Dfile=%1.jar
-		// -Durl=svn:https://swt-repo.googlecode.com/svn/repo
-		// -Dsources=%1-sources.jar
 		Properties properties = new Properties();
 		properties.put("pomFile", pomFile.getAbsolutePath());
 		properties.put("file", jarFile.getAbsolutePath());
 		properties.put("sources", sourcesFile.getAbsolutePath());
-		properties.put("url", "svn:https://swt-repo.googlecode.com/svn/repo");
+		properties.put("repositoryId", "googlecode");
+		properties.put("url", REPOSITORY_URL);
 
 		MavenExecutionRequest request = new DefaultMavenExecutionRequest();
 		request.setPom(pomFile);
@@ -183,11 +210,5 @@ public class Artifact {
 
 	public boolean isNewDownload() {
 		return newDownload;
-	}
-
-	public static void main(String[] args) throws Exception {
-
-		Artifact art = new Artifact(new File("downloads/win32-win32-x86_64.zip"));
-		art.deploy();
 	}
 }

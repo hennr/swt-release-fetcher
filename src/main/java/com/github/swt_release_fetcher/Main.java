@@ -1,3 +1,19 @@
+/*
+ * Copyright 2012 Henner Peters
+ * Copyright 2012 Uri Shaked
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.github.swt_release_fetcher;
 
 import java.io.File;
@@ -10,7 +26,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 
 public class Main {
-	private final static boolean SURPRESS_WARNINGS = true;
+	private final static boolean SURPRESS_WARNINGS = false;
 
 	public static void main(String[] args) throws Exception {
 
@@ -42,6 +58,9 @@ public class Main {
 		driver.get(directDownloadLink.getAttribute("href"));
 		final String finalDownloadLink = driver.getCurrentUrl();
 
+		// Close the browser
+		driver.quit();
+
 		// extract the mirror URL for all follwing downloads
 		String[] foo = finalDownloadLink.split("\\/", 0);
 		final String filename = foo[foo.length - 1];
@@ -52,37 +71,40 @@ public class Main {
 
 		// determine current release name
 		String[] releaseName = filename.split("-gtk-linux-x86.zip");
-		System.out.println("current swt release: " + releaseName[0]);
+		String versionName = releaseName[0].split("-")[1];
+		System.out.println("current swt version: " + versionName);
 
-		String[] dowloadNames = {
+		PackageInfo[] packages = {
 				// win32
-				"win32-win32-x86.zip",
+				new PackageInfo("win32-win32-x86.zip", "org.eclipse.swt.win32.win32.x86"),
 				// win64
-				"win32-win32-x86_64.zip",
+				new PackageInfo("win32-win32-x86_64.zip", "org.eclipse.swt.win32.win32.x86_64"),
 				// linux 32
-				"gtk-linux-x86.zip",
+				new PackageInfo("gtk-linux-x86.zip", "org.eclipse.swt.gtk.linux.x86"),
 				// linux 64
-				"gtk-linux-x86_64.zip",
+				new PackageInfo("gtk-linux-x86_64.zip", "org.eclipse.swt.gtk.linux.x86_64"),
 				// mac os X 32
-				"cocoa-macosx.zip",
+				new PackageInfo("cocoa-macosx.zip", "org.eclipse.swt.cocoa.macosx"),
 				// mac os X 32
-				"cocoa-macosx-x86_64.zip" };
+				new PackageInfo("cocoa-macosx-x86_64.zip", "org.eclipse.swt.cocoa.macosx.x86_64") };
 
 		File downloadDir = new File("downloads");
 		if (!downloadDir.exists()) {
 			downloadDir.mkdirs();
 		}
 
-		for (String download : dowloadNames) {
-			URL downloadUrl = new URL(mirrorUrl + releaseName[0] + "-" + download);
-			URL checksumUrl = new URL(mirrorUrl + "checksum/" + releaseName[0] + "-" + download + ".md5");
-			
-			System.out.print("* Downloading " + download + " ... ");
-			Artifact artifact = new Artifact(new File(downloadDir, download));
-			artifact.downloadAndValidate(downloadUrl, checksumUrl);
-		}
+		for (PackageInfo pkg : packages) {
+			String zipFileName = releaseName[0] + "-" + pkg.zipName;
+			URL downloadUrl = new URL(mirrorUrl + zipFileName);
+			URL checksumUrl = new URL(mirrorUrl + "checksum/" + zipFileName + ".md5");
 
-		// Close the browser
-		driver.quit();
+			System.out.print("* Downloading " + pkg.zipName + " ... ");
+			Artifact artifact = new Artifact(new File(downloadDir, zipFileName), versionName, pkg.artifactId);
+			artifact.downloadAndValidate(downloadUrl, checksumUrl);
+
+			if (artifact.isNewDownload()) {
+				artifact.deploy();
+			}
+		}
 	}
 }

@@ -29,7 +29,7 @@
 		<repository>
 			<uniqueVersion>false</uniqueVersion>
 			<id>googlecode</id>
-			<url>svn:https://swt-repo.googlecode.com/svn/repo</url>
+			<url>$repositoryUrl</url>
 		</repository>
 	</distributionManagement>
 </project>
