@@ -1,4 +1,6 @@
 .project
 *.iml
 .classpath
+.settings
 target
+downloads
