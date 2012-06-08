@@ -83,8 +83,8 @@ public class Main {
 		for (String download : dowloadNames) {
 			URL downloadUrl = new URL(mirrorUrl + releaseName[0] + "-" + download);
 			URL checksumUrl = new URL(mirrorUrl + "checksum/" + releaseName[0] + "-" + download + ".md5");
-			System.out.println("* Downloading " + download + " ...");
-
+			
+			System.out.print("* Downloading " + download + " ... ");
 			downloadAndChecksum(downloadUrl, checksumUrl, new File(downloadDir, download));
 		}
 
@@ -92,23 +92,33 @@ public class Main {
 		driver.quit();
 	}
 
+	private static boolean validateFileMd5(File file, String expected) throws IOException {
+		InputStream downloadedFile = new FileInputStream(file);
+		try {
+			String calculatedMd5 = DigestUtils.md5Hex(downloadedFile);
+			return calculatedMd5.equals(expected);
+		} finally {
+			downloadedFile.close();
+		}
+	}
+
 	private static void downloadAndChecksum(URL downloadUrl, URL checksumUrl, File file) throws IOException {
 		String md5FileContent = IOUtils.toString(checksumUrl.openStream());
 		String md5Hash = md5FileContent.split(" ")[0];
+		if (file.exists() && validateFileMd5(file, md5Hash)) {
+			System.out.println("SKIP");
+			return;
+		}
+		
 		OutputStream outputFile = new FileOutputStream(file);
 		try {
 			IOUtils.copy(downloadUrl.openStream(), outputFile);
 		} finally {
 			outputFile.close();
 		}
-		InputStream downloadedFile = new FileInputStream(file);
-		try {
-			String calculatedMd5 = DigestUtils.md5Hex(downloadedFile);
-			if (!calculatedMd5.equals(md5Hash)) {
-				throw new IOException("MD5 Validation Failed! Calculated: " + calculatedMd5 + ", expected: " + md5Hash);
-			}
-		} finally {
-			downloadedFile.close();
+		if (!validateFileMd5(file, md5Hash)) {
+			throw new IOException("MD5 Validation Failed! Expected hash: " + md5Hash);
 		}
+		System.out.println("DONE");
 	}
 }
