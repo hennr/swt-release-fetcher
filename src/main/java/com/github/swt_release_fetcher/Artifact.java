@@ -148,7 +148,7 @@ public class Artifact {
 
 		MavenExecutionRequest request = new DefaultMavenExecutionRequest();
 		request.setPom(pomFile);
-		request.setGoals(Arrays.asList(new String[] { "deploy:deploy" }));
+		request.setGoals(Arrays.asList(new String[] { "deploy:deploy-file" }));
 		request.setSystemProperties(properties);
 
 		Maven maven = initMaven();
