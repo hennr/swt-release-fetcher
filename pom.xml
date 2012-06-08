@@ -46,7 +46,7 @@
 					</descriptorRefs>
 					<archive>
 						<manifest>
-							<mainClass>main.java.Main</mainClass>
+							<mainClass>com.github.swt_release_fetcher.Main</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
