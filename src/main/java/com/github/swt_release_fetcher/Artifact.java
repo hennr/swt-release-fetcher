@@ -9,14 +9,27 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.maven.Maven;
+import org.apache.maven.cli.MavenLoggerManager;
+import org.apache.maven.cli.PrintStreamLogger;
+import org.apache.maven.execution.DefaultMavenExecutionRequest;
+import org.apache.maven.execution.MavenExecutionRequest;
+import org.apache.maven.execution.MavenExecutionResult;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
+import org.codehaus.plexus.ContainerConfiguration;
+import org.codehaus.plexus.DefaultContainerConfiguration;
+import org.codehaus.plexus.DefaultPlexusContainer;
+import org.codehaus.plexus.PlexusContainerException;
+import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 
 public class Artifact {
 	private final File file;
@@ -105,11 +118,49 @@ public class Artifact {
 		}
 	}
 
+	public Maven initMaven() {
+		ContainerConfiguration cc = new DefaultContainerConfiguration().setName("maven");
+		DefaultPlexusContainer container;
+		try {
+			container = new DefaultPlexusContainer(cc);
+			PrintStreamLogger logger = new PrintStreamLogger(System.out);
+			container.setLoggerManager(new MavenLoggerManager(logger));
+			return container.lookup(Maven.class);
+		} catch (PlexusContainerException e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		} catch (ComponentLookupException e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
+	}
+
 	public void runMavenDeploy(File pomFile, File jarFile, File sourcesFile) {
 		// TODO
 		// mvn deploy:deploy-file -f %1.pom -DpomFile=%1.pom -Dfile=%1.jar
 		// -Durl=svn:https://swt-repo.googlecode.com/svn/repo
 		// -Dsources=%1-sources.jar
+		Properties properties = new Properties();
+		properties.put("pomFile", pomFile.getAbsolutePath());
+		properties.put("file", jarFile.getAbsolutePath());
+		properties.put("sources", sourcesFile.getAbsolutePath());
+		properties.put("url", "svn:https://swt-repo.googlecode.com/svn/repo");
+
+		MavenExecutionRequest request = new DefaultMavenExecutionRequest();
+		request.setPom(pomFile);
+		request.setGoals(Arrays.asList(new String[] { "deploy:deploy" }));
+		request.setSystemProperties(properties);
+
+		Maven maven = initMaven();
+		MavenExecutionResult result = maven.execute(request);
+
+		if (result.hasExceptions()) {
+			System.out.println("Maven deploy failed!");
+			System.out.println(result.getExceptions());
+			throw new RuntimeException("Maven deploy failed!", result.getExceptions().get(0));
+		} else {
+			System.out.println("Maven deploy succeeded!");
+		}
 	}
 
 	private void extractFromZip(ZipFile zipFile, String fileNameToExtract, File targetFile) throws IOException {
