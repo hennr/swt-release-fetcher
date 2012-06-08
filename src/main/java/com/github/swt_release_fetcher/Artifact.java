@@ -33,19 +33,11 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.Maven;
-import org.apache.maven.cli.MavenLoggerManager;
-import org.apache.maven.cli.PrintStreamLogger;
 import org.apache.maven.execution.DefaultMavenExecutionRequest;
 import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.execution.MavenExecutionResult;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
-import org.codehaus.plexus.ContainerConfiguration;
-import org.codehaus.plexus.DefaultContainerConfiguration;
-import org.codehaus.plexus.DefaultPlexusContainer;
-import org.codehaus.plexus.PlexusContainerException;
-import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
-import org.codehaus.plexus.logging.Logger;
 
 /**
  * Handles the downloading, verification and maven deployment of a single
@@ -147,24 +139,6 @@ public class Artifact {
 		}
 	}
 
-	public Maven initMaven() {
-		ContainerConfiguration cc = new DefaultContainerConfiguration().setName("maven");
-		DefaultPlexusContainer container;
-		try {
-			container = new DefaultPlexusContainer(cc);
-			PrintStreamLogger logger = new PrintStreamLogger(System.out);
-			logger.setThreshold(Logger.LEVEL_DEBUG);
-			container.setLoggerManager(new MavenLoggerManager(logger));
-			return container.lookup(Maven.class);
-		} catch (PlexusContainerException e) {
-			e.printStackTrace();
-			throw new RuntimeException(e);
-		} catch (ComponentLookupException e) {
-			e.printStackTrace();
-			throw new RuntimeException(e);
-		}
-	}
-
 	public void runMavenDeploy(File pomFile, File jarFile, File sourcesFile) {
 		Properties properties = new Properties();
 		properties.put("pomFile", pomFile.getAbsolutePath());
@@ -178,7 +152,7 @@ public class Artifact {
 		request.setGoals(Arrays.asList(new String[] { "deploy:deploy-file" }));
 		request.setSystemProperties(properties);
 
-		Maven maven = initMaven();
+		Maven maven = EmbeddedMaven.get();
 		MavenExecutionResult result = maven.execute(request);
 
 		if (result.hasExceptions()) {
