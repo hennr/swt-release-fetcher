@@ -75,18 +75,23 @@ public class Main {
 		System.out.println("current swt version: " + versionName);
 
 		PackageInfo[] packages = {
-				// win32
+				// Win32
 				new PackageInfo("win32-win32-x86.zip", "org.eclipse.swt.win32.win32.x86"),
-				// win64
 				new PackageInfo("win32-win32-x86_64.zip", "org.eclipse.swt.win32.win32.x86_64"),
-				// linux 32
+				// Linux
+				new PackageInfo("gtk-linux-ppc64.zip", "org.eclipse.swt.gtk.linux.ppc64"),
 				new PackageInfo("gtk-linux-x86.zip", "org.eclipse.swt.gtk.linux.x86"),
-				// linux 64
 				new PackageInfo("gtk-linux-x86_64.zip", "org.eclipse.swt.gtk.linux.x86_64"),
-				// mac os X 32
+				// OSX
 				new PackageInfo("cocoa-macosx.zip", "org.eclipse.swt.cocoa.macosx"),
-				// mac os X 32
-				new PackageInfo("cocoa-macosx-x86_64.zip", "org.eclipse.swt.cocoa.macosx.x86_64") };
+				new PackageInfo("cocoa-macosx-x86_64.zip", "org.eclipse.swt.cocoa.macosx.x86_64"),
+				new PackageInfo("carbon-macosx.zip", "org.eclipse.swt.carbon.macosx"),
+				// Additional platforms
+				new PackageInfo("gtk-aix-ppc.zip", "org.eclipse.swt.gtk.aix.ppc"),
+				new PackageInfo("gtk-aix-ppc64.zip", "org.eclipse.swt.gtk.aix.ppc64"),
+				new PackageInfo("gtk-hpux-ia64_32.zip", "org.eclipse.swt.gtk.hpux.ia64_32"),
+				new PackageInfo("gtk-solaris-sparc.zip", "org.eclipse.swt.gtk.solaris.sparc"),
+				new PackageInfo("gtk-solaris-x86.zip", "org.eclipse.swt.gtk.solaris.x86") };
 
 		File downloadDir = new File("downloads");
 		if (!downloadDir.exists()) {
