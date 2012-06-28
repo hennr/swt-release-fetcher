@@ -85,7 +85,6 @@ public class Main {
 				// OSX
 				new PackageInfo("cocoa-macosx.zip", "org.eclipse.swt.cocoa.macosx"),
 				new PackageInfo("cocoa-macosx-x86_64.zip", "org.eclipse.swt.cocoa.macosx.x86_64"),
-				new PackageInfo("carbon-macosx.zip", "org.eclipse.swt.carbon.macosx"),
 				// Additional platforms
 				new PackageInfo("gtk-aix-ppc.zip", "org.eclipse.swt.gtk.aix.ppc"),
 				new PackageInfo("gtk-aix-ppc64.zip", "org.eclipse.swt.gtk.aix.ppc64"),
