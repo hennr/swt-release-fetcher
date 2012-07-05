@@ -12,25 +12,35 @@
 			<artifactId>selenium-java</artifactId>
 			<version>2.22.0</version>
 		</dependency>
+		<!-- needed for pom templates of artefacts -->
 		<dependency>
 			<groupId>org.apache.velocity</groupId>
 			<artifactId>velocity</artifactId>
 			<version>1.7</version>
 		</dependency>
+		<!-- needed for TODO -->
 		<dependency>
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-embedder</artifactId>
 			<version>3.0.4</version>
 		</dependency>
+		<!-- needed for TODO -->
 		<dependency>
 			<groupId>org.sonatype.aether</groupId>
 			<artifactId>aether-connector-wagon</artifactId>
 			<version>1.13.1</version>
 		</dependency>
+		<!-- needed for TODO -->
 		<dependency>
 			<groupId>org.apache.maven.wagon</groupId>
 			<artifactId>wagon-http</artifactId>
 			<version>2.2</version>
+		</dependency>
+		<!-- htmlunit uses commons-logging, which we make use log4j on all systems -->
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.17</version>
 		</dependency>
 	</dependencies>
 	

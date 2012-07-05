@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Henner Peters
+ * Copyright 2012 Jan-Hendrik Peters
  * Copyright 2012 Uri Shaked
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,15 +26,8 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 
 public class Main {
-	private final static boolean SURPRESS_WARNINGS = false;
-
 	public static void main(String[] args) throws Exception {
-
-		// suppress htmlUnit warnings
-		if (SURPRESS_WARNINGS) {
-			System.getProperties().put("org.apache.commons.logging.simplelog.defaultlog", "error");
-		}
-
+		
 		// mirror that we use for all following downloads
 		String mirrorUrl = "";
 
@@ -42,6 +35,7 @@ public class Main {
 		WebDriver driver = new HtmlUnitDriver();
 
 		// get swt main site
+		System.out.println("Parsing eclipse.org/swt to find a mirror");
 		driver.get("http://www.eclipse.org/swt/");
 
 		// find the stable release branch link and hit it
@@ -61,13 +55,13 @@ public class Main {
 		// Close the browser
 		driver.quit();
 
-		// extract the mirror URL for all follwing downloads
+		// extract the mirror URL for all following downloads
 		String[] foo = finalDownloadLink.split("\\/", 0);
 		final String filename = foo[foo.length - 1];
 		mirrorUrl = (String) finalDownloadLink.subSequence(0, finalDownloadLink.length() - filename.length());
 		// debug output
-		System.out.println("full download url: " + finalDownloadLink);
-		System.out.println("mirror url: " + mirrorUrl);
+		//System.out.println("full download url: " + finalDownloadLink);
+		//System.out.println("mirror url: " + mirrorUrl);
 
 		// determine current release name
 		String[] releaseName = filename.split("-gtk-linux-x86.zip");
