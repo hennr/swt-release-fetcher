@@ -27,7 +27,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 
 public class Main {
-	static boolean deployArtifacts = false;
+	private static boolean deployArtifacts = false;
 
 	public static void main(String[] args) throws Exception {
 
@@ -35,8 +35,6 @@ public class Main {
 			if (arg.equals("--deploy")) {
 				deployArtifacts = true;
 			}
-			// TODO --force-deploy => schon vorhandene downloads aus downloads/deployen
-			// oder neu herunterladen und dann neu deployen
 			
 			if (arg.equals("--help")) {
 				showHelp();
@@ -115,19 +113,17 @@ public class Main {
 			Artifact artifact = new Artifact(new File(downloadDir, zipFileName), versionName, pkg.artifactId);
 			artifact.downloadAndValidate(downloadUrl, checksumUrl);
 
-			if (artifact.isNewDownload() && deployArtifacts) {
+			if (deployArtifacts) {
 				artifact.deploy();
 			}
 		}
 	}
 
 	private static void showHelp() {
-		System.out.println("--help	foo\n" +
-				"--deploy	deploy all fetched artifacts to http://swt-repo.googlecode.com/svn/repo/ \n" +
-				"Note: already fetched downloads under downloads/ will not be deployed");
-			
-			Distribution management angucken
-		
+		System.out.println("" +
+				"--help	show this help\n" +
+				"--deploy	m5sum check new and already existing artefacts and deploy them to http://swt-repo.googlecode.com/svn/repo/ \n"
+				);
 		System.exit(0);
 	}
 }

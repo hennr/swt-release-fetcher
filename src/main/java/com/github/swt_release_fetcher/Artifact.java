@@ -75,7 +75,7 @@ public class Artifact {
 		String md5FileContent = IOUtils.toString(checksumUrl.openStream());
 		String md5Hash = md5FileContent.split(" ")[0];
 		if (file.exists() && validateFileMd5(file, md5Hash)) {
-			System.out.println("SKIP");
+			System.out.println("SKIPPED (md5sum freshly checked)");
 			return;
 		}
 
