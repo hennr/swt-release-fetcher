@@ -52,7 +52,7 @@ public class Artifact {
 	private final String artifactVersion;
 	private final String artifactId;
 
-	private boolean newDownload;
+	private boolean newDownload = false;
 
 	public Artifact(File file, String artifactVersion, String artifactId) {
 		super();

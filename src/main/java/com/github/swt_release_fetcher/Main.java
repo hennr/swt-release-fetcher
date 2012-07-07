@@ -1,6 +1,7 @@
 /*
  * Copyright 2012 Jan-Hendrik Peters
  * Copyright 2012 Uri Shaked
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -26,7 +27,21 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 
 public class Main {
+	static boolean deployArtifacts = false;
+
 	public static void main(String[] args) throws Exception {
+
+		for (String arg : args) {
+			if (arg.equals("--deploy")) {
+				deployArtifacts = true;
+			}
+			// TODO --force-deploy => schon vorhandene downloads aus downloads/deployen
+			// oder neu herunterladen und dann neu deployen
+			
+			if (arg.equals("--help")) {
+				showHelp();
+			}
+		}
 		
 		// mirror that we use for all following downloads
 		String mirrorUrl = "";
@@ -100,9 +115,19 @@ public class Main {
 			Artifact artifact = new Artifact(new File(downloadDir, zipFileName), versionName, pkg.artifactId);
 			artifact.downloadAndValidate(downloadUrl, checksumUrl);
 
-			if (artifact.isNewDownload()) {
+			if (artifact.isNewDownload() && deployArtifacts) {
 				artifact.deploy();
 			}
 		}
+	}
+
+	private static void showHelp() {
+		System.out.println("--help	foo\n" +
+				"--deploy	deploy all fetched artifacts to http://swt-repo.googlecode.com/svn/repo/ \n" +
+				"Note: already fetched downloads under downloads/ will not be deployed");
+			
+			Distribution management angucken
+		
+		System.exit(0);
 	}
 }
