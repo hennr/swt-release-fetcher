@@ -28,6 +28,7 @@ import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 
 public class Main {
 	private static boolean deployArtifacts = false;
+	private static boolean debug = false;
 
 	public static void main(String[] args) throws Exception {
 
@@ -35,9 +36,11 @@ public class Main {
 			if (arg.equals("--deploy")) {
 				deployArtifacts = true;
 			}
-			
 			if (arg.equals("--help")) {
 				showHelp();
+			}
+			if (arg.equals("--debug")) {
+				debug = true;
 			}
 		}
 		
@@ -47,23 +50,25 @@ public class Main {
 		// lightweight headless browser
 		WebDriver driver = new HtmlUnitDriver();
 
-		// get swt main site
-		System.out.println("Parsing eclipse.org/swt to find a mirror");
+		// get SWT's main site
+		printDebug("Parsing eclipse.org/swt to find a mirror");
 		driver.get("http://www.eclipse.org/swt/");
+		printDebug("got http://www.eclipse.org/swt/");
 
 		// find the stable release branch link and hit it
 		List<WebElement> elements = driver.findElements(By.linkText("Linux"));
 		final String deeplink = elements.get(0).getAttribute("href");
-		// System.out.println(deeplink);
+		printDebug("Deeplink: " + deeplink);
 		driver.get(deeplink);
 
 		// get the direct download link from the next page
 		WebElement directDownloadLink = driver.findElement(By.linkText("Direct link to file"));
-		// System.out.println(directDownloadLink.getAttribute("href"));
+		printDebug("direct download link: " + directDownloadLink.getAttribute("href"));
 
 		// the direct link again redirects, here is our final download link!
 		driver.get(directDownloadLink.getAttribute("href"));
 		final String finalDownloadLink = driver.getCurrentUrl();
+		printDebug("final download link: " + finalDownloadLink);
 
 		// Close the browser
 		driver.quit();
@@ -73,8 +78,8 @@ public class Main {
 		final String filename = foo[foo.length - 1];
 		mirrorUrl = (String) finalDownloadLink.subSequence(0, finalDownloadLink.length() - filename.length());
 		// debug output
-		//System.out.println("full download url: " + finalDownloadLink);
-		//System.out.println("mirror url: " + mirrorUrl);
+		printDebug("full download url: " + finalDownloadLink);
+		printDebug("mirror url: " + mirrorUrl);
 
 		// determine current release name
 		String[] releaseName = filename.split("-gtk-linux-x86.zip");
@@ -119,10 +124,24 @@ public class Main {
 		}
 	}
 
+	/**
+	 * print given debug output if run with --debug
+	 * @param string
+	 */
+	private static void printDebug(String string) {
+		if (debug) {
+			System.out.println(string);
+		}
+	}
+
+	/**
+	 * show a help dialogue
+	 */
 	private static void showHelp() {
 		System.out.println("" +
-				"--help	show this help\n" +
-				"--deploy	m5sum check new and already existing artefacts and deploy them to http://swt-repo.googlecode.com/svn/repo/ \n"
+				"--help		show this help messages \n" +
+				"--deploy	m5sum check new and already existing artefacts and deploy them to http://swt-repo.googlecode.com/svn/repo/ \n" + 
+				"--debug	print debug output while fetching releases. Per default no output is given \n"
 				);
 		System.exit(0);
 	}
