@@ -18,9 +18,9 @@
 package com.github.swt_release_fetcher;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.List;
-
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -29,6 +29,8 @@ import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 public class Main {
 	private static boolean deployArtifacts = false;
 	private static boolean debug = false;
+        private static boolean silentMode = false;
+        private static final String WEBSITE_URL = "http://www.eclipse.org/swt/";
 
 	public static void main(String[] args) throws Exception {
 
@@ -42,27 +44,51 @@ public class Main {
 			if (arg.equals("--debug")) {
 				debug = true;
 			}
+                        if (arg.equals("--silent")) {
+				silentMode = true;
+			}
 		}
 		
-		// mirror that we use for all following downloads
+		// the mirror we use for all following downloads
 		String mirrorUrl = "";
 
 		// lightweight headless browser
 		WebDriver driver = new HtmlUnitDriver();
 
+                // determine if the website has changed since our last visit
+                // stop if no change was detected
+                // Ignore this check if we just want to deploy
+                if (! deployArtifacts) {
+                    SwtWebsite sw = new SwtWebsite();
+
+                    try {
+                        if (! sw.hasChanged(driver, WEBSITE_URL)) {
+                            // exit if no change was detected
+                            printSilent("SWT website hasn't changed since our last visit. Stopping here.");
+                            driver.quit();
+                            System.exit(0);
+                            } else {
+                            // proceed if the site has changed
+                            printSilent("Page change detected! Proceeding.");
+                        }
+                    } catch (IOException ioe) {
+                        System.out.println(ioe.getMessage());
+                    }
+                }
+
 		// get SWT's main site
 		printDebug("Parsing eclipse.org/swt to find a mirror");
-		driver.get("http://www.eclipse.org/swt/");
-		printDebug("got http://www.eclipse.org/swt/");
+		driver.get(WEBSITE_URL);
+		printDebug(WEBSITE_URL);
 
 		// find the stable release branch link and hit it
-		List<WebElement> elements = driver.findElements(By.linkText("Linux"));
+		final List<WebElement> elements = driver.findElements(By.linkText("Linux"));
 		final String deeplink = elements.get(0).getAttribute("href");
-		printDebug("Deeplink: " + deeplink);
+		printDebug("deeplink: " + deeplink);
 		driver.get(deeplink);
 
 		// get the direct download link from the next page
-		WebElement directDownloadLink = driver.findElement(By.linkText("Direct link to file"));
+		final WebElement directDownloadLink = driver.findElement(By.linkText("Direct link to file"));
 		printDebug("direct download link: " + directDownloadLink.getAttribute("href"));
 
 		// the direct link again redirects, here is our final download link!
@@ -110,9 +136,9 @@ public class Main {
 		}
 
 		for (PackageInfo pkg : packages) {
-			String zipFileName = releaseName[0] + "-" + pkg.zipName;
-			URL downloadUrl = new URL(mirrorUrl + zipFileName);
-			URL checksumUrl = new URL(mirrorUrl + "checksum/" + zipFileName + ".md5");
+			final String zipFileName = releaseName[0] + "-" + pkg.zipName;
+			final URL downloadUrl = new URL(mirrorUrl + zipFileName);
+			final URL checksumUrl = new URL(mirrorUrl + "checksum/" + zipFileName + ".md5");
 
 			System.out.print("* Downloading " + pkg.zipName + " ... ");
 			Artifact artifact = new Artifact(new File(downloadDir, zipFileName), versionName, pkg.artifactId);
@@ -135,14 +161,25 @@ public class Main {
 	}
 
 	/**
-	 * show a help dialogue
+	 * print help dialogue
 	 */
 	private static void showHelp() {
 		System.out.println("" +
 				"--help		show this help messages \n" +
-				"--deploy	m5sum check new and already existing artefacts and deploy them to http://swt-repo.googlecode.com/svn/repo/ \n" + 
-				"--debug	print debug output while fetching releases. Per default no output is given \n"
+				"--deploy	check (m5sum) new and already existing artefacts and deploy them to http://swt-repo.googlecode.com/svn/repo/ \n" + 
+				"--debug	print debug output while fetching releases. Per default no output is given. \n" + 
+                                "--silent	suppress unnecessary output, useful for running as cron job. \n"
 				);
 		System.exit(0);
 	}
+
+    /**
+     * stdout if silentMode is false
+     * @param message The message to print
+     */
+    private static void printSilent(String message) {
+        if (! silentMode) {
+            System.out.println(message);
+        }
+    }
 }
