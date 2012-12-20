@@ -29,8 +29,8 @@ import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 public class Main {
 	private static boolean deployArtifacts = false;
 	private static boolean debug = false;
-        private static boolean silentMode = false;
-        private static final String WEBSITE_URL = "http://www.eclipse.org/swt/";
+	private static boolean silentMode = false;
+	private static final String WEBSITE_URL = "http://www.eclipse.org/swt/";
 
 	public static void main(String[] args) throws Exception {
 
@@ -44,7 +44,7 @@ public class Main {
 			if (arg.equals("--debug")) {
 				debug = true;
 			}
-                        if (arg.equals("--silent")) {
+			if (arg.equals("--silent")) {
 				silentMode = true;
 			}
 		}
@@ -55,26 +55,26 @@ public class Main {
 		// lightweight headless browser
 		WebDriver driver = new HtmlUnitDriver();
 
-                // determine if the website has changed since our last visit
-                // stop if no change was detected
-                // Ignore this check if we just want to deploy
-                if (! deployArtifacts) {
-                    SwtWebsite sw = new SwtWebsite();
+		// determine if the website has changed since our last visit
+		// stop if no change was detected
+		// Ignore this check if we just want to deploy
+		if (! deployArtifacts) {
+			SwtWebsite sw = new SwtWebsite();
 
-                    try {
-                        if (! sw.hasChanged(driver, WEBSITE_URL)) {
-                            // exit if no change was detected
-                            printSilent("SWT website hasn't changed since our last visit. Stopping here.");
-                            driver.quit();
-                            System.exit(0);
-                            } else {
-                            // proceed if the site has changed
-                            printSilent("Page change detected! Proceeding.");
-                        }
-                    } catch (IOException ioe) {
-                        System.out.println(ioe.getMessage());
-                    }
-                }
+			try {
+				if (! sw.hasChanged(driver, WEBSITE_URL)) {
+					// exit if no change was detected
+					printSilent("SWT website hasn't changed since our last visit. Stopping here.");
+					driver.quit();
+					System.exit(0);
+					} else {
+					// proceed if the site has changed
+					System.out.println("Page change detected! You may want to run the script in deploy mode again.");
+				}
+			} catch (IOException ioe) {
+				System.out.println(ioe.getMessage());
+			}
+		}
 
 		// get SWT's main site
 		printDebug("Parsing eclipse.org/swt to find a mirror");
@@ -112,6 +112,7 @@ public class Main {
 		String versionName = releaseName[0].split("-")[1];
 		System.out.println("current swt version: " + versionName);
 
+		// TODO move to properties file
 		PackageInfo[] packages = {
 				// Win32
 				new PackageInfo("win32-win32-x86.zip", "org.eclipse.swt.win32.win32.x86"),
@@ -151,7 +152,7 @@ public class Main {
 	}
 
 	/**
-	 * print given debug output if run with --debug
+	 * Prints given debug message if debug mode is enabled.
 	 * @param string
 	 */
 	private static void printDebug(String string) {
@@ -174,11 +175,11 @@ public class Main {
 	}
 
     /**
-     * stdout if silentMode is false
+     * prints messages to stdout if silentMode is disabled.
      * @param message The message to print
      */
     private static void printSilent(String message) {
-        if (! silentMode) {
+        if (!silentMode) {
             System.out.println(message);
         }
     }
