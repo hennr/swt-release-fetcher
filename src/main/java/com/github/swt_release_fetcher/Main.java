@@ -118,16 +118,19 @@ public class Main {
 				new PackageInfo("win32-win32-x86.zip", "org.eclipse.swt.win32.win32.x86"),
 				new PackageInfo("win32-win32-x86_64.zip", "org.eclipse.swt.win32.win32.x86_64"),
 				// Linux
+				new PackageInfo("gtk-linux-ppc.zip", "org.eclipse.swt.gtk.linux.ppc"),
 				new PackageInfo("gtk-linux-ppc64.zip", "org.eclipse.swt.gtk.linux.ppc64"),
 				new PackageInfo("gtk-linux-x86.zip", "org.eclipse.swt.gtk.linux.x86"),
 				new PackageInfo("gtk-linux-x86_64.zip", "org.eclipse.swt.gtk.linux.x86_64"),
+				new PackageInfo("gtk-linux-s390.zip", "org.eclipse.swt.gtk.linux.s390"),
+				new PackageInfo("gtk-linux-s390x.zip", "org.eclipse.swt.gtk.linux.s390x"),
 				// OSX
 				new PackageInfo("cocoa-macosx.zip", "org.eclipse.swt.cocoa.macosx"),
 				new PackageInfo("cocoa-macosx-x86_64.zip", "org.eclipse.swt.cocoa.macosx.x86_64"),
 				// Additional platforms
 				new PackageInfo("gtk-aix-ppc.zip", "org.eclipse.swt.gtk.aix.ppc"),
 				new PackageInfo("gtk-aix-ppc64.zip", "org.eclipse.swt.gtk.aix.ppc64"),
-				new PackageInfo("gtk-hpux-ia64_32.zip", "org.eclipse.swt.gtk.hpux.ia64_32"),
+				new PackageInfo("gtk-hpux-ia64.zip", "org.eclipse.swt.gtk.hpux.ia64"),
 				new PackageInfo("gtk-solaris-sparc.zip", "org.eclipse.swt.gtk.solaris.sparc"),
 				new PackageInfo("gtk-solaris-x86.zip", "org.eclipse.swt.gtk.solaris.x86") };
 
